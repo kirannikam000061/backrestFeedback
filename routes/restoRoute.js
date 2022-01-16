@@ -27,7 +27,72 @@ create = (req, res) => {
   }
 }
 
+//function to get list of resto
+list = async (req, res) => {
+  const { query } = req.body
+  try {
+    const restos = await Resto.find(query)
+    let restoList = JSON.parse(JSON.stringify(restos))
+    await restoList.map((r) => {
+      r.reviewCount = r.reviews ? r.reviews.length : 0
+    })
+    res.send(resFormat.rSuccess({ restoList }))
+  } catch(e) {
+    res.send(resFormat.rError(messages.somethingWentWrong))
+  }
+}
+
+//function to get resto details
+details = async (req, res) => {
+  const { restoId } = req.body
+  try {
+    const restoDetails = await Resto.findOne({ _id: restoId})
+    res.send(resFormat.rSuccess({ restoDetails }))
+  } catch(e) {
+    res.send(resFormat.rError(messages.somethingWentWrong))
+  }
+}
+
+//function to add review to restaurant
+addReview = async (req, res) => {
+  const { restoId, reviewById, reviewByName, rating, review } = req.body
+  try {
+    const resto = await Resto.findOne({ _id: restoId})
+    resto.reviews.push({ 
+      reviewById,
+      reviewByName,
+      rating,
+      review
+    })
+    await resto.save()
+    res.send(resFormat.rSuccess({ resto }))
+  } catch(e) {
+    console.log(e)
+    res.send(resFormat.rError(messages.somethingWentWrong))
+  }
+}
+
+//function to delete review of restaurant
+deleteReview = async (req, res) => {
+  const { restoId, reviewId } = req.body
+  try {
+    const resto = await Resto.findOne({ _id: restoId})
+    const reviewIndex = resto.reviews.findIndex((o) => o._id.toString() == reviewId)
+    if(reviewIndex > -1) {
+      resto.reviews.splice(reviewIndex, 1)
+    }
+    await resto.save()
+    res.send(resFormat.rSuccess("Successfully deleted review!"))
+  } catch(e) {
+    console.log(e)
+    res.send(resFormat.rError(messages.somethingWentWrong))
+  }
+}
 
 router.post("/onboard", create)
+router.post("/list", list)
+router.post("/details", details)
+router.post("/addReview", addReview)
+router.post("/deleteReview", deleteReview)
 
 module.exports = router

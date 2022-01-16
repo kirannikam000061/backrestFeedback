@@ -17,6 +17,12 @@ var restoSchema = new mongoose.Schema({
   nonveg1: String,
   nonveg2: String,
   nonveg3: String,
+  reviews: [{
+    reviewById: String,
+    reviewByName: String,
+    rating: String,
+    review: String
+  }],
   isActive: {
     type: Boolean,
     default: true

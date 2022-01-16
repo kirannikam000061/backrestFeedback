@@ -20,10 +20,6 @@ list = async (req, res) => {
       }
     })
   }
-  query.isDeleted = false
-  if(!query.userType) {
-    query.userType = { $ne: "SuperAdmin" }
-  }
 
   Users.countDocuments(query, (err, userCount) => {
     if (userCount) {
